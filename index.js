@@ -70,11 +70,17 @@ app.get('/api', (req, res) => {
 });
 
 // Route all other requests to the React app
-app.get('*', (req, res) => {
-  if (req.originalUrl.startsWith('/api')) {
-    return res.status(404).json({ error: 'API route not found.' });
-  }  
-  res.sendFile(path.join(__dirname, '../clone/dist', 'index.html'));
+// Serve React for specific routes
+const reactRoutes = [
+  '/projects/pinterest-clone/demo',
+  '/projects/pinterest-clone/demo/my-pins',
+  '/projects/pinterest-clone/demo/profile',
+];
+
+reactRoutes.forEach((route) => {
+  app.get(route, (req, res) => {
+    res.sendFile(path.join(__dirname, '../clone/dist', 'index.html'));
+  });
 });
 
 // Start the server
