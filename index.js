@@ -80,6 +80,9 @@ const reactRoutes = [
   '/projects/pinterest-clone/demo',
   '/projects/pinterest-clone/demo/my-pins',
   '/projects/pinterest-clone/demo/profile',
+  '/',
+  '/my-pins',
+  '/profile',
 ];
 
 reactRoutes.forEach((route) => {
