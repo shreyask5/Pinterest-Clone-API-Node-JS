@@ -12,6 +12,11 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const morgan = require('morgan');
+
+// Use morgan to log all requests
+app.use(morgan('combined')); // Use 'combined' for detailed logs
+
 // Serve static files from the React app's build folder
 app.use(express.static(path.join(__dirname, '../clone/dist')));
 
