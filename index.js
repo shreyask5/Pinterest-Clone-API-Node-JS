@@ -26,7 +26,7 @@ const s3 = new AWS.S3({
 const upload = multer();
 
 // POST endpoint to upload a file directly to S3
-app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req, res) => {
+app.post('/api', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
 
@@ -65,7 +65,7 @@ app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req
 });
 
 // Add this route to handle GET requests for this endpoint
-app.get('/projects/pinterest-clone/demo/api', (req, res) => {
+app.get('/api', (req, res) => {
   res.status(405).json({ error: 'GET method not allowed on this endpoint. Use POST instead.' });
 });
 
