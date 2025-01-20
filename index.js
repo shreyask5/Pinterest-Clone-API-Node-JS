@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static files from the React app's build folder
-app.use(express.static(path.join(__dirname, '../pinspire-collection/dist')));
+app.use(express.static(path.join(__dirname, '../clone/dist')));
 
 // Configure AWS SDK
 const s3 = new AWS.S3({
@@ -66,7 +66,7 @@ app.post('/upload-to-s3', upload.single('file'), async (req, res) => {
 
 // Route all other requests to the React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../pinspire-collection/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../clone/dist', 'index.html'));
 });
 
 // Start the server
