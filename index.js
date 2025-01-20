@@ -26,7 +26,7 @@ const s3 = new AWS.S3({
 const upload = multer();
 
 // POST endpoint to upload a file directly to S3
-app.post('/upload-to-s3', upload.single('file'), async (req, res) => {
+app.post('/projects/pinterest-clone/demo/upload-to-s3', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
 
