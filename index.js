@@ -6,6 +6,8 @@ const multer = require('multer');
 const sharp = require('sharp');
 const cors = require('cors');
 
+require('dotenv').config();
+
 const app = express();
 
 // Middleware
