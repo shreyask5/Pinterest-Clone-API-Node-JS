@@ -66,7 +66,7 @@ app.post('/upload-to-s3', upload.single('file'), async (req, res) => {
 
 // Route all other requests to the React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 // Start the server
