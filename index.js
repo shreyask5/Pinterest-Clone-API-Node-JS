@@ -1,19 +1,23 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const AWS = require("aws-sdk");
-const multer = require("multer");
-const sharp = require("sharp");
-const cors = require("cors");
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const sharp = require('sharp');
+const cors = require('cors');
 
-// Initialize Express app
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
+// Serve static files from the React app's build folder
+app.use(express.static(path.join(__dirname, '../pinspire-collection/dist')));
+
 // Configure AWS SDK
-require("dotenv").config();
 const s3 = new AWS.S3({
-  region: "ap-south-1",
+  region: 'ap-south-1',
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
@@ -22,12 +26,12 @@ const s3 = new AWS.S3({
 const upload = multer();
 
 // POST endpoint to upload a file directly to S3
-app.post("/upload-to-s3", upload.single("file"), async (req, res) => {
+app.post('/upload-to-s3', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ error: "File is required." });
+      return res.status(400).json({ error: 'File is required.' });
     }
 
     // Compress the image and convert it to jpg
@@ -35,13 +39,13 @@ app.post("/upload-to-s3", upload.single("file"), async (req, res) => {
       .jpeg({ quality: 80 }) // Adjust quality as needed
       .toBuffer();
 
-    const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, ".jpg")}`; // Ensure file has .jpg extension
+    const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '.jpg')}`; // Ensure file has .jpg extension
 
     const params = {
-      Bucket: "pinterest-clone-picture-storage", // Replace with your S3 bucket name
+      Bucket: 'pinterest-clone-picture-storage', // Replace with your S3 bucket name
       Key: fileKey,
       Body: compressedBuffer,
-      ContentType: "image/jpeg",
+      ContentType: 'image/jpeg',
     };
 
     // Upload file to S3
@@ -49,19 +53,24 @@ app.post("/upload-to-s3", upload.single("file"), async (req, res) => {
 
     // Respond with the uploaded file's details
     res.status(200).json({
-      message: "File uploaded successfully.",
+      message: 'File uploaded successfully.',
       fileKey: data.Key,
       fileUrl: data.Location,
       bucket: data.Bucket,
     });
   } catch (error) {
-    console.error("Error uploading file to S3:", error);
-    res.status(500).json({ error: "Failed to upload file to S3." });
+    console.error('Error uploading file to S3:', error);
+    res.status(500).json({ error: 'Failed to upload file to S3.' });
   }
 });
 
+// Route all other requests to the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
 // Start the server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
