@@ -64,6 +64,11 @@ app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req
   }
 });
 
+// Add this route to handle GET requests for this endpoint
+app.get('/projects/pinterest-clone/demo/api', (req, res) => {
+  res.status(405).json({ error: 'GET method not allowed on this endpoint. Use POST instead.' });
+});
+
 // Route all other requests to the React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../clone/dist', 'index.html'));
