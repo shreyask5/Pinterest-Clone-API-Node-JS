@@ -1,6 +1,7 @@
 # Pinterest Clone: Full-Stack Web Application
 
 ## **Try Pinterest Clone Live**: [https://shreyask.in/projects/pinterest-clone/demo](https://shreyask.in/projects/pinterest-clone/demo)
+## **Watch Pinterest Clone Demo**: [Watch Demo Here](https://shreyask.in/projects/pinterest-clone/#demo)
 
 This project is a full-stack Pinterest clone built using **React.js** for the frontend and **Node.js with Express.js** for the backend. It includes features like **Google Authentication**, **Firestore Database**, **AWS S3 for image uploads**, and much more. Hosted on **Oracle Cloud**, the application replicates core functionalities of Pinterest, providing users with a seamless image upload and exploration experience.
 
