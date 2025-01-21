@@ -11,6 +11,7 @@ This project is a full-stack Pinterest clone built using **React.js** for the fr
 - [Features and Functionalities](#features-and-functionalities)
 - [Technology Stack](#technology-stack)
 - [Known Issues and Areas for Improvement](#known-issues-and-areas-for-improvement)
+- [Changelog](#changelog)
 - [Conclusion](#conclusion)
 
 ## Introduction
