@@ -33,6 +33,11 @@ async function compressImageForPinterest(buffer) {
   const maxSizeKB = 100;
   const maxSizeBytes = maxSizeKB * 1024;
   
+  // Get the original image dimensions
+  const metadata = await sharp(buffer).metadata();
+  let originalWidth = metadata.width;
+  let originalHeight = metadata.height;
+  
   let quality = 85;
   let compressedBuffer;
   
@@ -55,8 +60,8 @@ async function compressImageForPinterest(buffer) {
   
   // If still too large even at lowest quality, try smaller dimensions
   if (compressedBuffer.length > maxSizeBytes) {
-    let width = targetWidth;
-    let height = targetHeight;
+    let width = originalWidth;
+    let height = originalHeight;
     
     while (compressedBuffer.length > maxSizeBytes && width > 300) {
       width = Math.floor(width * 0.9);
