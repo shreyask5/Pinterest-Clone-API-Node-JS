@@ -49,7 +49,7 @@ app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req
     const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '.jpg')}`; // Ensure file has .jpg extension
 
     const params = {
-      Bucket: 'pinterest-clone-picture-storage', // Replace with your S3 bucket name
+      Bucket: 'pinterest-clone-s3-bucket-shreyas', // Replace with your S3 bucket name
       Key: fileKey,
       Body: compressedBuffer,
       ContentType: 'image/jpeg',
