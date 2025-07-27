@@ -33,19 +33,11 @@ async function compressImageForPinterest(buffer) {
   const maxSizeKB = 100;
   const maxSizeBytes = maxSizeKB * 1024;
   
-  // Pinterest optimal dimensions (2:3 aspect ratio)
-  const targetWidth = 600;
-  const targetHeight = 900;
-  
   let quality = 85;
   let compressedBuffer;
   
   do {
     compressedBuffer = await sharp(buffer)
-      .resize(targetWidth, targetHeight, {
-        fit: 'cover', // Crop to fit exact dimensions
-        position: 'center'
-      })
       .jpeg({ 
         quality: quality,
         progressive: true,
