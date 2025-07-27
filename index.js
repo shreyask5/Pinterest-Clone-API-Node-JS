@@ -16,7 +16,7 @@ const morgan = require('morgan');
 app.use(morgan('combined')); // Use 'combined' for detailed logs
 
 // Serve static files from the React app's build folder
-app.use(express.static(path.join(__dirname, '../clone/dist')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Configure AWS SDK
 const s3 = new AWS.S3({
@@ -143,20 +143,9 @@ app.get('/projects/pinterest-clone/demo/api', (req, res) => {
 });
 
 // Route all other requests to the React app
-// Serve React for specific routes
-const reactRoutes = [
-  '/projects/pinterest-clone/demo',
-  '/projects/pinterest-clone/demo/my-pins',
-  '/projects/pinterest-clone/demo/profile',
-  '/',
-  '/my-pins',
-  '/profile',
-];
-
-reactRoutes.forEach((route) => {
-  app.get(route, (req, res) => {
-    res.sendFile(path.join(__dirname, '../clone/dist', 'index.html'));
-  });
+// This should be the last route to catch all unmatched routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // Start the server
