@@ -5,17 +5,13 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const sharp = require('sharp');
 const cors = require('cors');
-
 require('dotenv').config();
-
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-
 const morgan = require('morgan');
-
 // Use morgan to log all requests
 app.use(morgan('combined')); // Use 'combined' for detailed logs
 
@@ -32,19 +28,84 @@ const s3 = new AWS.S3({
 // Configure Multer for file upload
 const upload = multer();
 
+// Function to compress image to Pinterest dimensions and under 100KB
+async function compressImageForPinterest(buffer) {
+  const maxSizeKB = 100;
+  const maxSizeBytes = maxSizeKB * 1024;
+  
+  // Pinterest optimal dimensions (2:3 aspect ratio)
+  const targetWidth = 600;
+  const targetHeight = 900;
+  
+  let quality = 85;
+  let compressedBuffer;
+  
+  do {
+    compressedBuffer = await sharp(buffer)
+      .resize(targetWidth, targetHeight, {
+        fit: 'cover', // Crop to fit exact dimensions
+        position: 'center'
+      })
+      .jpeg({ 
+        quality: quality,
+        progressive: true,
+        mozjpeg: true // Use mozjpeg encoder for better compression
+      })
+      .toBuffer();
+    
+    // If still too large, reduce quality
+    if (compressedBuffer.length > maxSizeBytes && quality > 20) {
+      quality -= 5;
+    } else {
+      break;
+    }
+  } while (compressedBuffer.length > maxSizeBytes && quality > 20);
+  
+  // If still too large even at lowest quality, try smaller dimensions
+  if (compressedBuffer.length > maxSizeBytes) {
+    let width = targetWidth;
+    let height = targetHeight;
+    
+    while (compressedBuffer.length > maxSizeBytes && width > 300) {
+      width = Math.floor(width * 0.9);
+      height = Math.floor(height * 0.9);
+      
+      compressedBuffer = await sharp(buffer)
+        .resize(width, height, {
+          fit: 'cover',
+          position: 'center'
+        })
+        .jpeg({ 
+          quality: 60,
+          progressive: true,
+          mozjpeg: true
+        })
+        .toBuffer();
+    }
+  }
+  
+  return compressedBuffer;
+}
+
 // POST endpoint to upload a file directly to S3
 app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
-
     if (!file) {
       return res.status(400).json({ error: 'File is required.' });
     }
 
-    // Compress the image and convert it to jpg
-    const compressedBuffer = await sharp(file.buffer)
-      .jpeg({ quality: 80 }) // Adjust quality as needed
-      .toBuffer();
+    // Check if file is an image
+    if (!file.mimetype.startsWith('image/')) {
+      return res.status(400).json({ error: 'Only image files are allowed.' });
+    }
+
+    // Compress the image for Pinterest (2:3 ratio, max 100KB)
+    const compressedBuffer = await compressImageForPinterest(file.buffer);
+    
+    // Log the final file size for debugging
+    console.log(`Original size: ${(file.buffer.length / 1024).toFixed(2)}KB`);
+    console.log(`Compressed size: ${(compressedBuffer.length / 1024).toFixed(2)}KB`);
 
     const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '.jpg')}`; // Ensure file has .jpg extension
 
@@ -53,6 +114,11 @@ app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req
       Key: fileKey,
       Body: compressedBuffer,
       ContentType: 'image/jpeg',
+      Metadata: {
+        'original-name': file.originalname,
+        'compressed-size': compressedBuffer.length.toString(),
+        'pinterest-optimized': 'true'
+      }
     };
 
     // Upload file to S3
@@ -64,6 +130,9 @@ app.post('/projects/pinterest-clone/demo/api', upload.single('file'), async (req
       fileKey: data.Key,
       fileUrl: data.Location,
       bucket: data.Bucket,
+      originalSize: `${(file.buffer.length / 1024).toFixed(2)}KB`,
+      compressedSize: `${(compressedBuffer.length / 1024).toFixed(2)}KB`,
+      dimensions: '600x900 (Pinterest optimized)'
     });
   } catch (error) {
     console.error('Error uploading file to S3:', error);
